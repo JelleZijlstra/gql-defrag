@@ -4,6 +4,7 @@ Find GraphQL fragments.
 
 """
 
+import ast
 import os
 from pathlib import Path
 import re
@@ -23,10 +24,24 @@ def extract_from_js(source_dir: Path) -> Iterable[str]:
     """Extract GraphQL from JavaScript files."""
     for path in get_files(source_dir, {".js", ".jsx", ".ts", ".tsx"}):
         contents = path.read_text()
-        yield from re.findall(r"(?:graphql|gql)`([^`]+)`", contents)
+        for doc in re.findall(r"(?:graphql|gql)`([^`]+)`", contents):
+            yield doc.replace("null", '"null"')
 
 
 def extract_from_standalone_files(source_dir: Path, extension: str = ".graphql"):
     """Extract GraphQL from standalone files."""
     for path in get_files(source_dir, {extension}):
         yield path.read_text()
+
+
+def extract_from_relay_files(source_dir: Path) -> Iterable[str]:
+    """Extract GraphQL from Relay files."""
+    for path in get_files(source_dir, {".ts"}):
+        if not path.name.endswith(".graphql.ts"):
+            continue
+        print("try", path.name)
+        contents = path.read_text()
+        for doc in re.findall(r'"text": ("(?:\\"|[^"])+")', contents):
+            print("got doc", doc)
+            doc = ast.literal_eval(doc)
+            yield doc.replace("null", '"null"')

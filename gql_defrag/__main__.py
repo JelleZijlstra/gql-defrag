@@ -3,7 +3,11 @@ import os
 from pathlib import Path
 
 from .defrag import Defragmenter
-from .finder import extract_from_js, extract_from_standalone_files
+from .finder import (
+    extract_from_js,
+    extract_from_standalone_files,
+    extract_from_relay_files,
+)
 
 
 def main():
@@ -14,6 +18,9 @@ def main():
     )
     parser.add_argument(
         "--graphql-dir", help="Directory with GraphQL files with .graphql extensions"
+    )
+    parser.add_argument(
+        "--relay-dir", help="Directory with Relay files with .graphql.ts extensions"
     )
     parser.add_argument(
         "--output-dir", help="Directory to write defragmented queries to"
@@ -33,6 +40,9 @@ def main():
     if args.graphql_dir:
         for doc in extract_from_standalone_files(Path(args.graphql_dir)):
             defragmenter.add_document(doc)
+    if args.relay_dir:
+        for doc in extract_from_relay_files(Path(args.relay_dir)):
+            defragmenter.add_document(doc)
     if args.output_dir:
         output_dir = Path(args.output_dir)
         os.makedirs(output_dir, exist_ok=True)
@@ -41,3 +51,7 @@ def main():
         ):
             with (output_dir / f"{query_name}.graphql").open("w") as f:
                 f.write(query)
+
+
+if __name__ == "__main__":
+    main()
