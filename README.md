@@ -89,3 +89,9 @@ directory does not exist, it is created. The file names are of the form
 
 If `--include-source` is given, `@gql_defrag_source` are added with precise source
 information for each field.
+
+## Changelog
+
+### Version 0.1.0 (May 3, 2023)
+
+Initial public release.
