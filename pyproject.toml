@@ -25,3 +25,16 @@ dependencies = [
 
 [tool.pyright]
 pythonVersion = "3.9"
+
+[tool.black]
+target-version = ['py39']
+include = '\.pyi?$'
+skip-magic-trailing-comma = true
+
+[tool.pycln]
+all = true
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+skip_gitignore = true

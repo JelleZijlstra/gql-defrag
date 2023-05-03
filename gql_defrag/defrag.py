@@ -1,9 +1,11 @@
+from collections.abc import Iterable, Sequence
 from copy import deepcopy
+from typing import Optional
+
 import graphql
 from graphql.language import ast
 from graphql.language.printer import print_ast
 from graphql.language.source import Source
-from typing import Iterable, Optional, Sequence
 
 
 class Defragmenter:
@@ -28,14 +30,14 @@ class Defragmenter:
             else:
                 raise ValueError(f"Unknown definition type: {defn!r}")
 
-    def defragment(self, query_name: str, add_source: bool = True) -> str:
+    def defragment(self, query_name: str, *, add_source: bool = True) -> str:
         query = self.query_to_defn[query_name]
         new_query = ast.OperationDefinition(
             operation=query.operation,
             name=query.name,
             variable_definitions=query.variable_definitions,
             directives=query.directives,
-            selection_set=self.defragment_selection_set(
+            selection_set=self._defragment_selection_set(
                 query.selection_set, source=query_name if add_source else None
             ),
             loc=query.loc,
@@ -47,10 +49,10 @@ class Defragmenter:
         for query_name in self.query_to_defn:
             yield query_name, self.defragment(query_name, add_source=add_source)
 
-    def defragment_selection_set(
+    def _defragment_selection_set(
         self, selection_set: ast.SelectionSet, source: Optional[str]
     ) -> ast.SelectionSet:
-        new_selections, final_list = self.parse_selection_set(
+        new_selections, final_list = self._parse_selection_set(
             selection_set.selections, source
         )
         for _, nodes in sorted(new_selections.items()):
@@ -60,7 +62,7 @@ class Defragmenter:
             final_list.append(new_node)
         return ast.SelectionSet(selections=final_list, loc=selection_set.loc)
 
-    def parse_selection_set(
+    def _parse_selection_set(
         self, selections: Sequence[ast.Node], source: Optional[str]
     ) -> tuple[dict[str, list[ast.Node]], list[ast.Node]]:
         new_selections: dict[str, list[ast.Node]] = {}
@@ -75,7 +77,7 @@ class Defragmenter:
                     alias=selection.alias,
                     arguments=selection.arguments,
                     directives=_add_source(selection.directives, source),
-                    selection_set=self.defragment_selection_set(
+                    selection_set=self._defragment_selection_set(
                         selection.selection_set,
                         f"field {name}" if source is not None else None,
                     )
@@ -87,7 +89,7 @@ class Defragmenter:
             elif isinstance(selection, ast.FragmentSpread):
                 # We ignore any directives here
                 fragment_def = self.fragment_to_defn[selection.name.value]
-                frag_sels, frag_list = self.parse_selection_set(
+                frag_sels, frag_list = self._parse_selection_set(
                     fragment_def.selection_set.selections,
                     f"{source} -> {selection.name.value}"
                     if source is not None
@@ -100,7 +102,7 @@ class Defragmenter:
                 new_frag = ast.InlineFragment(
                     type_condition=selection.type_condition,
                     directives=_add_source(selection.directives, source),
-                    selection_set=self.defragment_selection_set(
+                    selection_set=self._defragment_selection_set(
                         selection.selection_set,
                         f"{source} -> (inline fragment)"
                         if source is not None

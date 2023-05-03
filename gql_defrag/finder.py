@@ -6,9 +6,9 @@ Find GraphQL fragments.
 
 import ast
 import os
-from pathlib import Path
 import re
-from typing import Container, Iterable
+from collections.abc import Container, Iterable
+from pathlib import Path
 
 
 def get_files(source_dir: Path, extensions: Container[str]) -> Iterable[Path]:
@@ -39,9 +39,7 @@ def extract_from_relay_files(source_dir: Path) -> Iterable[str]:
     for path in get_files(source_dir, {".ts"}):
         if not path.name.endswith(".graphql.ts"):
             continue
-        print("try", path.name)
         contents = path.read_text()
         for doc in re.findall(r'"text": ("(?:\\"|[^"])+")', contents):
-            print("got doc", doc)
             doc = ast.literal_eval(doc)
             yield doc.replace("null", '"null"')

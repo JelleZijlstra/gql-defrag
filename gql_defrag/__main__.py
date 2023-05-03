@@ -5,13 +5,13 @@ from pathlib import Path
 from .defrag import Defragmenter
 from .finder import (
     extract_from_js,
-    extract_from_standalone_files,
     extract_from_relay_files,
+    extract_from_standalone_files,
 )
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Defrag GraphQL queries")
+    parser = argparse.ArgumentParser(description="Defragment GraphQL queries")
     parser.add_argument(
         "--js-dir",
         help="Directory with JavaScript files containing GraphQL fragments and queries",
