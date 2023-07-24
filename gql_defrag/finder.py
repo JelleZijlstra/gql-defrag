@@ -47,4 +47,4 @@ def extract_from_relay_files(source_dir: Path) -> Iterable[str]:
 
 def clean_gql(gql: str) -> str:
     # Our parser doesn't like 'null', so replace it with a string
-    return re.sub(r"\bnull\b", '"null"', gql)
+    return re.sub(r"\b(?<!\")null(?!\")\b", '"null"', gql)
