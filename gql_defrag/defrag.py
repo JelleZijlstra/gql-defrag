@@ -45,7 +45,7 @@ class Defragmenter:
         new_doc = ast.Document(definitions=[new_query])
         return print_ast(new_doc)
 
-    def defragment_all(self, add_source: bool = True) -> Iterable[tuple[str, str]]:
+    def defragment_all(self, *, add_source: bool = True) -> Iterable[tuple[str, str]]:
         for query_name in self.query_to_defn:
             yield query_name, self.defragment(query_name, add_source=add_source)
 
