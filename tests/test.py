@@ -1,4 +1,5 @@
 from gql_defrag import Defragmenter
+from gql_defrag.finder import clean_gql
 
 DOCUMENT = """
 query SomeQuery {
@@ -25,3 +26,11 @@ query SomeQuery {
 def test_basic() -> None:
     defragmenter = Defragmenter([DOCUMENT])
     assert defragmenter.defragment("SomeQuery").strip() == EXPECTED.strip()
+
+
+def test_null() -> None:
+    query = 'query SomeQuery { nullableField(arg: null, arg2: "null") }'
+    assert (
+        clean_gql(query).strip()
+        == 'query SomeQuery { nullableField(arg: "null", arg2: "null") }'
+    )
