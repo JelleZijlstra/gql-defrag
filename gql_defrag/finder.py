@@ -25,7 +25,7 @@ def extract_from_js(source_dir: Path) -> Iterable[str]:
     for path in get_files(source_dir, {".js", ".jsx", ".ts", ".tsx"}):
         contents = path.read_text()
         for doc in re.findall(r"(?:graphql|gql)`([^`]+)`", contents):
-            yield doc.replace("null", '"null"')
+            yield clean_gql(doc)
 
 
 def extract_from_standalone_files(source_dir: Path, extension: str = ".graphql"):
@@ -42,4 +42,9 @@ def extract_from_relay_files(source_dir: Path) -> Iterable[str]:
         contents = path.read_text()
         for doc in re.findall(r'"text": ("(?:\\"|[^"])+")', contents):
             doc = ast.literal_eval(doc)
-            yield doc.replace("null", '"null"')
+            yield clean_gql(doc)
+
+
+def clean_gql(gql: str) -> str:
+    # Our parser doesn't like 'null', so replace it with a string
+    return re.sub(r"\bnull\b", '"null"', gql)

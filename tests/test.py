@@ -25,3 +25,15 @@ query SomeQuery {
 def test_basic() -> None:
     defragmenter = Defragmenter([DOCUMENT])
     assert defragmenter.defragment("SomeQuery").strip() == EXPECTED.strip()
+
+
+EXPECTED_NULL = """
+query SomeQuery {
+    nullableField(arg: "null") @gql_defrag_source(name: "SomeQuery")
+}
+"""
+
+
+def test_null() -> None:
+    defragmenter = Defragmenter(["query SomeQuery { nullableField(arg: null) }"])
+    assert defragmenter.defragment("SomeQuery").strip() == EXPECTED_NULL.strip()
