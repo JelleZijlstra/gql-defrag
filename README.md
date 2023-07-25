@@ -92,7 +92,7 @@ information for each field.
 
 ## Changelog
 
-### Version 0.1.1 (July 24, 2023)
+### Version 0.1.1 (July 25, 2023)
 
 - Fix bug with handling of fields that contain "null" in their name
 
