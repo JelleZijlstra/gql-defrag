@@ -7,6 +7,9 @@ query SomeQuery {
     name
     objectField {
         field1
+        ... on SomeObject {
+            field3
+        }
     }
     ...SomeFragment
 }
@@ -28,6 +31,9 @@ query SomeQuery {
   objectField @gql_defrag_source(name: "SomeQuery") @gql_defrag_source(name: "SomeQuery -> SomeFragment") {
     field1 @gql_defrag_source(name: "SomeQuery -> field objectField")
     field2 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
+    ... on SomeObject @gql_defrag_source(name: "SomeQuery -> field objectField") {
+      field3 @gql_defrag_source(name: "SomeQuery -> field objectField -> (inline fragment)")
+    }
   }
 }
 """

@@ -64,18 +64,25 @@ class Defragmenter:
         for node in nodes[1:]:
             new_node.directives.extend(node.directives)
         by_name: dict[str, list[ast.Field]] = {}
+        inline_fragments: list[ast.InlineFragment] = []
         for node in nodes:
             if node.selection_set:
                 for selection in node.selection_set.selections:
                     if isinstance(selection, ast.Field):
                         by_name.setdefault(selection.name.value, []).append(selection)
+                    elif isinstance(selection, ast.InlineFragment):
+                        # TODO ideally we should merge inline fragments
+                        # if there are multiple on the same type
+                        inline_fragments.append(selection)
                     else:
                         raise ValueError(f"Unknown selection type: {selection!r}")
-        if by_name:
+        if by_name or inline_fragments:
             fields: list[ast.Node] = []
             for _, field_nodes in sorted(by_name.items()):
                 fields.append(self._merge_nodes(field_nodes))
-            new_node.selection_set = ast.SelectionSet(selections=fields)
+            new_node.selection_set = ast.SelectionSet(
+                selections=fields + inline_fragments
+            )
         return new_node
 
     def _parse_selection_set(
