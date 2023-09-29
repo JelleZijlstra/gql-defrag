@@ -56,16 +56,44 @@ class Defragmenter:
             selection_set.selections, source
         )
         for _, nodes in sorted(new_selections.items()):
-            new_node = deepcopy(nodes[0])
-            for node in nodes[1:]:
-                new_node.directives.extend(node.directives)
-            final_list.append(new_node)
+            final_list.append(self._merge_nodes(nodes))
         return ast.SelectionSet(selections=final_list, loc=selection_set.loc)
+
+    def _merge_nodes(self, nodes: list[ast.Field]) -> ast.Node:
+        new_node = deepcopy(nodes[0])
+        for node in nodes[1:]:
+            new_node.directives.extend(node.directives)
+        by_name: dict[str, list[ast.Field]] = {}
+        inline_fragments: list[ast.InlineFragment] = []
+        for node in nodes:
+            if node.selection_set:
+                for selection in node.selection_set.selections:
+                    if isinstance(selection, ast.Field):
+                        name = (
+                            selection.alias.value
+                            if selection.alias
+                            else selection.name.value
+                        )
+                        by_name.setdefault(name, []).append(selection)
+                    elif isinstance(selection, ast.InlineFragment):
+                        # TODO ideally we should merge inline fragments
+                        # if there are multiple on the same type
+                        inline_fragments.append(selection)
+                    else:
+                        raise ValueError(f"Unknown selection type: {selection!r}")
+        if by_name or inline_fragments:
+            fields: list[ast.Node] = []
+            for _, field_nodes in sorted(by_name.items()):
+                fields.append(self._merge_nodes(field_nodes))
+            new_node.selection_set = ast.SelectionSet(
+                selections=inline_fragments + fields
+            )
+        return new_node
 
     def _parse_selection_set(
         self, selections: Sequence[ast.Node], source: Optional[str]
-    ) -> tuple[dict[str, list[ast.Node]], list[ast.Node]]:
-        new_selections: dict[str, list[ast.Node]] = {}
+    ) -> tuple[dict[str, list[ast.Field]], list[ast.Node]]:
+        new_selections: dict[str, list[ast.Field]] = {}
         final_list: list[ast.Node] = []
         for selection in selections:
             if isinstance(selection, ast.Field):
@@ -79,7 +107,7 @@ class Defragmenter:
                     directives=_add_source(selection.directives, source),
                     selection_set=self._defragment_selection_set(
                         selection.selection_set,
-                        f"field {name}" if source is not None else None,
+                        f"{source} -> field {name}" if source is not None else None,
                     )
                     if selection.selection_set
                     else None,
