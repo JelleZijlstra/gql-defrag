@@ -5,12 +5,18 @@ DOCUMENT = """
 query SomeQuery {
     field
     name
+    objectField {
+        field1
+    }
     ...SomeFragment
 }
 
 fragment SomeFragment on SomeType {
     fragmentField
     field
+    objectField {
+        field2
+    }
 }
 """
 
@@ -19,6 +25,10 @@ query SomeQuery {
   field @gql_defrag_source(name: "SomeQuery") @gql_defrag_source(name: "SomeQuery -> SomeFragment")
   fragmentField @gql_defrag_source(name: "SomeQuery -> SomeFragment")
   name @gql_defrag_source(name: "SomeQuery")
+  objectField @gql_defrag_source(name: "SomeQuery") @gql_defrag_source(name: "SomeQuery -> SomeFragment") {
+    field1 @gql_defrag_source(name: "SomeQuery -> field objectField")
+    field2 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
+  }
 }
 """
 
