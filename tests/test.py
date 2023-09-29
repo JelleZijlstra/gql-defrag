@@ -19,6 +19,7 @@ fragment SomeFragment on SomeType {
     field
     objectField {
         field2
+        field4: field1
     }
 }
 """
@@ -29,11 +30,12 @@ query SomeQuery {
   fragmentField @gql_defrag_source(name: "SomeQuery -> SomeFragment")
   name @gql_defrag_source(name: "SomeQuery")
   objectField @gql_defrag_source(name: "SomeQuery") @gql_defrag_source(name: "SomeQuery -> SomeFragment") {
-    field1 @gql_defrag_source(name: "SomeQuery -> field objectField")
-    field2 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
     ... on SomeObject @gql_defrag_source(name: "SomeQuery -> field objectField") {
       field3 @gql_defrag_source(name: "SomeQuery -> field objectField -> (inline fragment)")
     }
+    field1 @gql_defrag_source(name: "SomeQuery -> field objectField")
+    field2 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
+    field4: field1 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
   }
 }
 """

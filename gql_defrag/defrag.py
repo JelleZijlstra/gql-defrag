@@ -69,7 +69,12 @@ class Defragmenter:
             if node.selection_set:
                 for selection in node.selection_set.selections:
                     if isinstance(selection, ast.Field):
-                        by_name.setdefault(selection.name.value, []).append(selection)
+                        name = (
+                            selection.alias.value
+                            if selection.alias
+                            else selection.name.value
+                        )
+                        by_name.setdefault(name, []).append(selection)
                     elif isinstance(selection, ast.InlineFragment):
                         # TODO ideally we should merge inline fragments
                         # if there are multiple on the same type
@@ -81,7 +86,7 @@ class Defragmenter:
             for _, field_nodes in sorted(by_name.items()):
                 fields.append(self._merge_nodes(field_nodes))
             new_node.selection_set = ast.SelectionSet(
-                selections=fields + inline_fragments
+                selections=inline_fragments + fields
             )
         return new_node
 
