@@ -99,7 +99,7 @@ information for each field.
 
 ### Version 0.2.0 (September 28, 2023)
 
-- No changes.
+- Fix bug where fields in nested objects were not correctly defragmented.
 
 ### Version 0.1.1 (July 25, 2023)
 
