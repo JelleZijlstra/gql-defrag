@@ -26,16 +26,21 @@ fragment SomeFragment on SomeType {
 
 EXPECTED = """
 query SomeQuery {
-  field @gql_defrag_source(name: "SomeQuery") @gql_defrag_source(name: "SomeQuery -> SomeFragment")
-  fragmentField @gql_defrag_source(name: "SomeQuery -> SomeFragment")
+  ... on SomeType @gql_defrag_source(name: "SomeQuery") {
+    field @gql_defrag_source(name: "SomeQuery -> SomeFragment")
+    fragmentField @gql_defrag_source(name: "SomeQuery -> SomeFragment")
+    objectField @gql_defrag_source(name: "SomeQuery -> SomeFragment") {
+      field2 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
+      field4: field1 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
+    }
+  }
+  field @gql_defrag_source(name: "SomeQuery")
   name @gql_defrag_source(name: "SomeQuery")
-  objectField @gql_defrag_source(name: "SomeQuery") @gql_defrag_source(name: "SomeQuery -> SomeFragment") {
+  objectField @gql_defrag_source(name: "SomeQuery") {
     ... on SomeObject @gql_defrag_source(name: "SomeQuery -> field objectField") {
       field3 @gql_defrag_source(name: "SomeQuery -> field objectField -> (inline fragment)")
     }
     field1 @gql_defrag_source(name: "SomeQuery -> field objectField")
-    field2 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
-    field4: field1 @gql_defrag_source(name: "SomeQuery -> SomeFragment -> field objectField")
   }
 }
 """

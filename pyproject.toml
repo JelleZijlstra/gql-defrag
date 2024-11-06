@@ -5,20 +5,16 @@ build-backend = "hatchling.build"
 [project]
 name = "gql_defrag"
 version = "0.2.0"
-authors = [
-  { name="Jelle Zijlstra", email="jelle@quora.com" },
-]
+authors = [{ name = "Jelle Zijlstra", email = "jelle@quora.com" }]
 description = "Merge GraphQL fragments into the parent query"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
 ]
-dependencies = [
-    "graphql-core==2.3.2"
-]
+dependencies = ["graphql-core==2.3.2"]
 
 [project.urls]
 "Homepage" = "https://github.com/JelleZijlstra/gql-defrag"
