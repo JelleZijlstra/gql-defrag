@@ -94,8 +94,8 @@ information for each field.
 
 ### Version 0.2.1 (November 6, 2024)
 
-- Fix bug where type conditions on fragments were not preserved. Fix contributed
-  by Donggu Kang.
+- Fix bug where type conditions on fragments were not preserved. Fix contributed by
+  Donggu Kang.
 
 ### Version 0.2.0 (September 28, 2023)
 
