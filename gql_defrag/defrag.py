@@ -105,12 +105,14 @@ class Defragmenter:
                     alias=selection.alias,
                     arguments=selection.arguments,
                     directives=_add_source(selection.directives, source),
-                    selection_set=self._defragment_selection_set(
-                        selection.selection_set,
-                        f"{source} -> field {name}" if source is not None else None,
-                    )
-                    if selection.selection_set
-                    else None,
+                    selection_set=(
+                        self._defragment_selection_set(
+                            selection.selection_set,
+                            f"{source} -> field {name}" if source is not None else None,
+                        )
+                        if selection.selection_set
+                        else None
+                    ),
                     loc=selection.loc,
                 )
                 new_selections.setdefault(name, []).append(new_field)
@@ -123,33 +125,42 @@ class Defragmenter:
                     new_frag = ast.InlineFragment(
                         type_condition=fragment_def.type_condition,
                         directives=_add_source(fragment_def.directives, source),
-                        selection_set=self._defragment_selection_set(fragment_def.selection_set, f"{source} -> {selection.name.value}"
-                        if source is not None
-                        else None,)
+                        selection_set=self._defragment_selection_set(
+                            fragment_def.selection_set,
+                            (
+                                f"{source} -> {selection.name.value}"
+                                if source is not None
+                                else None
+                            ),
+                        ),
                     )
                     final_list.append(new_frag)
                 else:
                     # flatten the selection set
                     frag_sels, frag_list = self._parse_selection_set(
                         fragment_def.selection_set.selections,
-                        f"{source} -> {selection.name.value}"
-                        if source is not None
-                        else None,
+                        (
+                            f"{source} -> {selection.name.value}"
+                            if source is not None
+                            else None
+                        ),
                     )
                     for name, nodes in frag_sels.items():
                         new_selections.setdefault(name, []).extend(nodes)
-                
+
                     final_list += frag_list
-                    
+
             elif isinstance(selection, ast.InlineFragment):
                 new_frag = ast.InlineFragment(
                     type_condition=selection.type_condition,
                     directives=_add_source(selection.directives, source),
                     selection_set=self._defragment_selection_set(
                         selection.selection_set,
-                        f"{source} -> (inline fragment)"
-                        if source is not None
-                        else None,
+                        (
+                            f"{source} -> (inline fragment)"
+                            if source is not None
+                            else None
+                        ),
                     ),
                 )
                 final_list.append(new_frag)
