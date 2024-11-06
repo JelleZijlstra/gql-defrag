@@ -92,6 +92,15 @@ information for each field.
 
 ## Changelog
 
+### Version 0.2.1 (November 6, 2024)
+
+- Fix bug where type conditions on fragments were not preserved. Fix contributed
+  by Donggu Kang.
+
+### Version 0.2.0 (September 28, 2023)
+
+- No changes.
+
 ### Version 0.1.1 (July 25, 2023)
 
 - Fix bug with handling of fields that contain "null" in their name
